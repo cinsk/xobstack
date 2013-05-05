@@ -1,6 +1,6 @@
+/* -*-c++-*- */
 #ifndef XOBSTACK_H__
 #define XOBSTACK_H__
-
 
 /*
  * xobstack.h - subrotunes used implicitly by object stack macros
@@ -738,5 +738,129 @@ int d_xobs_1grow_fast(const char *, int, struct xobs *h, char c);
 #endif  /* DEBUG */
 
 END_C_DECLS
+
+#ifdef __cplusplus
+#include <new>
+
+class XOBS {
+  xobs pool;
+
+public:
+  XOBS() {
+    if (!xobs_init(&pool))
+      throw std::bad_alloc();
+  }
+
+  XOBS(size_t size) {
+    if (!xobs_begin(&pool, size))
+      throw std::bad_alloc();
+  }
+
+  ~XOBS() {
+    xobs_free(&pool, 0);
+  }
+
+  void *alloc(size_t sz) {
+    void *p = xobs_alloc(&pool, sz);
+    if (!p)
+      throw std::bad_alloc();
+    return p;
+  }
+
+  void *copy(const void *src, size_t sz) {
+    void *p = xobs_copy(&pool, src, sz);
+    if (!p)
+      throw std::bad_alloc();
+    return p;
+  }
+
+  void *copy0(const void *src, size_t sz) {
+    void *p = xobs_copy0(&pool, src, sz);
+    if (!p)
+      throw std::bad_alloc();
+    return p;
+  }
+
+  void free(const void *src = 0) {
+    xobs_free(&pool, (void *)src);
+  }
+
+  void blank(size_t sz) {
+    if (!xobs_blank(&pool, sz))
+      throw std::bad_alloc();
+  }
+
+  void grow(const void *src, size_t sz) {
+    if (!xobs_grow(&pool, src, sz))
+      throw std::bad_alloc();
+  }
+
+  void grow0(const void *src, size_t sz) {
+    if (!xobs_grow0(&pool, src, sz))
+      throw std::bad_alloc();
+  }
+
+  template <typename T>
+  void grow(T val) {
+    if (!xobs_grow(&pool, &val, sizeof(val)))
+      throw std::bad_alloc();
+  }
+
+  void *finish(void) {
+    return xobs_finish(&pool);
+  }
+
+  size_t object_size() {
+    return xobs_object_size(&pool);
+  }
+
+  size_t room(void) {
+    return xobs_room(&pool);
+  }
+
+  template <typename T>
+  void grow_fast(const T &val) {
+    *(T *)pool.next_free = val;
+    pool.next_free += sizeof(T);
+  }
+
+  void blank_fast(size_t sz) {
+    xobs_blank_fast(&pool, sz);
+  }
+
+  void *base(void) {
+    return xobs_base(&pool);
+  }
+
+  void *next_free(void) {
+    return xobs_next_free(&pool);
+  }
+
+  int alignment_mask(void) {
+    return xobs_alignment_mask(&pool);
+  }
+
+  int chunk_size() {
+    return xobs_chunk_size(&pool);
+  }
+
+
+  template <typename T>
+  void del(T *p) {
+    if (p) {
+      p->~T();
+      free(p);
+    }
+  }
+};
+
+
+void *
+operator new(size_t sz, XOBS &obs)
+{
+  return obs.alloc(sz);
+}
+
+#endif  /* __cplusplus */
 
 #endif  /* XOBSTACK_H__ */

@@ -24,6 +24,29 @@ Except the return value, all `xobs_` functions behave the same as
 `obstack_` functions.
 
 
+In C++, you could use Xobstack's C++ class `XOBS`, which has following characteristics.
+
+* Most of `xobs_` functions are provided in member function of `XOBS` class.
+* Some of `xobs_` functions are provides in template member functions, notably `XOBS::grow` and `XOBS::grow_fast`.
+* `XOBS` does not call destructore of C++ class instances in it.  See below.
+
+`XOBS` provides placement `new` operator.  Thus, you could store C++ class instance like:
+
+    XOBS obs;
+    SOME_DATA *p;
+    
+    p = new(obs) SOME_DATA(...);
+    ...
+    obs.del(p);      // This will call the destructor of SOME_DATA properly.
+
+Note that if you call `XOBS::free` (the same as `xobs_free`), the C++ class
+instance will siege to exist.  (no destructor call).
+
+`XOBS::del` can call the destructor of the instance that is passed as the first argument.  However, this does not propagate to the subsequent class instances in `XOBS`.   For example, if you stored two instances in `XOBS`, and called `XOBS::del` for the first instance,  then destructor for the first instance would be called, but (since `XOBS` is a stack) memory for the both two instances would be gone.  (No destructor call for the second instance.)
+
+Generally, it would be bad idea to store C++ class instances in `XOBS`.  
+
+
 Debugging
 ---------
 

@@ -165,6 +165,20 @@ Summary:
 # endif
 #endif /* BEGIN_C_DECLS */
 
+
+#ifndef xobs_chunk_alloc
+# ifdef __cplusplus
+#  include <cstdlib>
+#  define xobs_chunk_alloc     std::malloc
+#  define xobs_chunk_free      std::free
+# else
+#  include <stdlib.h>
+#  define xobs_chunk_alloc     malloc
+#  define xobs_chunk_free      free
+# endif  /* __cplusplus */
+#endif
+
+
 BEGIN_C_DECLS
 
 

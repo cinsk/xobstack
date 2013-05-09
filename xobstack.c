@@ -41,6 +41,7 @@
  * The mother obstack code is copied from glibc-2.14.1, modified for
  * Darwin compilation -- cinsk
  */
+#include <stdint.h>
 #include "xobstack.h"
 
 #ifdef DEBUG
@@ -957,5 +958,3 @@ xobs_dump(struct xobs *h, FILE *fp)
 
 #endif  /* DEBUG */
 }
-
-

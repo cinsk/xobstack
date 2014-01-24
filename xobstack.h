@@ -688,6 +688,9 @@ __extension__                                                           \
 
 #endif /* not __GNUC__ or not __STDC__ */
 
+#define xobs_grow_literal(o, src)       xobs_grow((o), (src), sizeof(src) - 1)
+#define xobs_grow_literal0(o, src)      xobs_grow((o), (src), sizeof(src))
+
 #ifdef DEBUG
 #undef xobs_alloc
 #define xobs_alloc(h, s)        d_xobs_alloc(__FILE__, __LINE__, (h), (s))
@@ -734,20 +737,21 @@ int d_xobs_begin(const char *file, int lineno,
                  void *(*dallocfun) (void *, size_t));
 
 void *d_xobs_alloc(const char *file, int lineno, struct xobs *h, int size);
-void d_xobs_free(const char *file, int lineno, struct xobs *h, void *ptr);
+void d_xobs_free(const char *file, int lineno, struct xobs *h, const void *ptr);
 
 int d_xobs_blank(const char *file, int lineno, struct xobs *h, int size);
 void *d_xobs_finish(const char *file, int lineno, struct xobs *h);
 void *d_xobs_object_base(const char *file, int lineno, struct xobs *stack);
 int d_xobs_object_size(const char *file, int lineno, struct xobs *h);
 int d_xobs_1grow(const char *, int, struct xobs *h, char c);
-int d_xobs_grow(const char *, int, struct xobs *h, void *ptr, size_t size);
-int d_xobs_grow0(const char *, int, struct xobs *h, void *ptr, size_t size);
-int d_xobs_ptr_grow(const char *, int, struct xobs *h, void *ptr);
+int d_xobs_grow(const char *, int, struct xobs *h, const void *ptr, size_t size);
+int d_xobs_grow0(const char *, int, struct xobs *h, const void *ptr, size_t size);
+int d_xobs_ptr_grow(const char *, int, struct xobs *h, const void *ptr);
 int d_xobs_int_grow(const char *, int, struct xobs *h, int value);
-int d_xobs_ptr_grow_fast(const char *, int, struct xobs *h, void *ptr);
+int d_xobs_ptr_grow_fast(const char *, int, struct xobs *h, const void *ptr);
 int d_xobs_int_grow_fast(const char *, int, struct xobs *h, int value);
 int d_xobs_1grow_fast(const char *, int, struct xobs *h, char c);
+void *d_xobs_base(const char *, int, struct xobs *h);
 
 #endif  /* DEBUG */
 

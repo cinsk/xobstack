@@ -695,7 +695,7 @@ d_xobs_free_chunk(struct xobs *h, struct d_xobs_stack_chunk *until)
 
 
 void
-d_xobs_free(LOC_PARAMSPEC, struct xobs *h, void *ptr)
+d_xobs_free(LOC_PARAMSPEC, struct xobs *h, const void *ptr)
 {
   int i, j;
   struct d_xobs_stack_chunk *p;
@@ -823,7 +823,7 @@ d_xobs_1grow(LOC_PARAMSPEC, struct xobs *h, char c)
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_1grow", h, 1))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - 1;
   *p = c;
   return 1;
@@ -831,14 +831,14 @@ d_xobs_1grow(LOC_PARAMSPEC, struct xobs *h, char c)
 
 
 int
-d_xobs_grow(LOC_PARAMSPEC, struct xobs *h, void *ptr, size_t size)
+d_xobs_grow(LOC_PARAMSPEC, struct xobs *h, const void *ptr, size_t size)
 {
   char *p;
 
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_grow", h, size))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - size;
   memcpy(p, ptr, size);
   return 1;
@@ -846,14 +846,14 @@ d_xobs_grow(LOC_PARAMSPEC, struct xobs *h, void *ptr, size_t size)
 
 
 int
-d_xobs_grow0(LOC_PARAMSPEC, struct xobs *h, void *ptr, size_t size)
+d_xobs_grow0(LOC_PARAMSPEC, struct xobs *h, const void *ptr, size_t size)
 {
   char *p;
 
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_grow0", h, size + 1))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - (size + 1);
   memcpy(p, ptr, size);
   *(p + size) = '\0';
@@ -863,16 +863,16 @@ d_xobs_grow0(LOC_PARAMSPEC, struct xobs *h, void *ptr, size_t size)
 
 
 int
-d_xobs_ptr_grow(LOC_PARAMSPEC, struct xobs *h, void *ptr)
+d_xobs_ptr_grow(LOC_PARAMSPEC, struct xobs *h, const void *ptr)
 {
   char *p;
 
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_ptr_grow", h, sizeof(void *)))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - sizeof(void *);
-  *(void **)p = ptr;
+  *(void **)p = (void *)ptr;
   return 1;
 }
 
@@ -885,7 +885,7 @@ d_xobs_int_grow(LOC_PARAMSPEC, struct xobs *h, int value)
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_ptr_grow", h, sizeof(int)))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - sizeof(int);
   *(int *)p = value;
   return 1;
@@ -893,7 +893,7 @@ d_xobs_int_grow(LOC_PARAMSPEC, struct xobs *h, int value)
 
 
 int
-d_xobs_ptr_grow_fast(LOC_PARAMSPEC, struct xobs *h, void *ptr)
+d_xobs_ptr_grow_fast(LOC_PARAMSPEC, struct xobs *h, const void *ptr)
 {
   char *p;
 
@@ -904,9 +904,9 @@ d_xobs_ptr_grow_fast(LOC_PARAMSPEC, struct xobs *h, void *ptr)
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_ptr_grow_fast", h, sizeof(void *)))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - sizeof(void *);
-  *(void **)p = ptr;
+  *(void **)p = (void *)ptr;
   return 1;
 }
 
@@ -923,7 +923,7 @@ d_xobs_int_grow_fast(LOC_PARAMSPEC, struct xobs *h, int value)
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_int_grow_fast", h, sizeof(int)))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - sizeof(int);
   *(int *)p = value;
   return 1;
@@ -942,7 +942,7 @@ d_xobs_1grow_fast(LOC_PARAMSPEC, struct xobs *h, char c)
   if (!d_xobs_blank_(LOC_PARAMS, "xobs_1grow_fast", h, 1))
     return 0;
 
-  p = d_xobs_object_base(LOC_PARAMS, h);
+  p = d_xobs_base(LOC_PARAMS, h);
   p += d_xobs_object_size(LOC_PARAMS, h) - 1;
   *p = c;
   return 1;

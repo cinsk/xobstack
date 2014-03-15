@@ -291,6 +291,8 @@ extern int _xobs_begin_1 (struct xobs *, int, int,
                              void *(*) (void *, long),
                              void (*) (void *, void *), void *);
 
+extern int xobs_sprintf_(struct xobs *obs, const char *format, ...);
+
 
 extern int _xobs_memory_used (struct xobs *);
 void xobs_free (struct xobs *xobs__, void *block__);
@@ -309,7 +311,7 @@ extern int xobs_exit_failure;
    Note that this might not be the final address of the object
    because a new chunk might be needed to hold the final size.  */
 
-#define xobs_base(h) ((void *) (h)->object_base)
+#define xobs_base(h) ((void *) ((h)->object_base))
 
 /* Size for allocating ordinary chunks.  */
 
@@ -391,6 +393,20 @@ extern int xobs_exit_failure;
 #define xobs_blank_fast(h,n) ((h)->next_free += (n))
 
 #define xobs_memory_used(h) _xobs_memory_used (h)
+
+/*
+ * xobs_sprintf(o, format, ...)
+ *
+ * Grow OBSTACK with the string built from printf(3)-like arguments.
+ * Note that this does not add '\0' in the end of the string.  If you
+ * want to build zero-terminated striing, use xobs_sprintf0 or add
+ * '\0' using xobs_1grow.
+ *
+ * On success, it returns the length of the string it added.
+ * Otherwise, It returns -1 (e.g. allocation failure).
+ */
+#define xobs_sprintf(o, fmt, ...)       xobs_sprintf_((o), (fmt), __VA_ARGS__)
+
 
 #if defined __GNUC__ && defined __STDC__ && __STDC__
 /* NextStep 2.0 cc is really gcc 1.93 but it defines __GNUC__ = 2 and
@@ -579,6 +595,18 @@ __extension__                                                           \
    if (__obj > (void *)__o->chunk && __obj < (void *)__o->chunk_limit)  \
      __o->next_free = __o->object_base = (char *)__obj;                 \
    else (xobs_free) (__o, __obj); })
+
+// TODO: xobs_sprintf0() should revert XOBS state if xobs_1grow() failed.
+#define xobs_sprintf0(o, fmt, ...)      ({              \
+      int len = xobs_sprintf((o), (fmt), __VA_ARGS__);  \
+      if (len >= 0) {                                   \
+        if (xobs_1grow((o), '\0') != 0)                 \
+          len += 1;                                     \
+        else                                            \
+          len = -1;                                     \
+      }                                                 \
+      len; })
+
 
 #else /* not __GNUC__ or not __STDC__ */
 
@@ -686,7 +714,14 @@ __extension__                                                           \
             = (h)->temp.tempint + (char *) (h)->chunk)                  \
    : (((xobs_free) ((h), (h)->temp.tempint + (char *) (h)->chunk), 0), 0)))
 
+// TODO: implmenet xobs_sprintf0 without using ({...})
+#define xobs_sprintf0(o, fmt, ...)
+
 #endif /* not __GNUC__ or not __STDC__ */
+
+#define xobs_grow_literal(o, src)       xobs_grow((o), (src), sizeof(src) - 1)
+#define xobs_grow_literal0(o, src)      xobs_grow((o), (src), sizeof(src))
+
 
 #ifdef DEBUG
 #undef xobs_alloc
@@ -725,7 +760,8 @@ __extension__                                                           \
 #define xobs_int_grow_fast(h, v)        d_xobs_int_grow_fast((h), (v))
 #undef xobs_1grow_fast
 #define xobs_1grow_fast(h, c)   d_xobs_1grow_fast((h), (c))
-
+#undef xobs_sprintf
+#define xobs_sprintf(h, f, ...) d_xobs_sprintf(__FILE__, __LINE__, (h), (f), __VA_ARGS__)
 
 int d_xobs_begin(const char *file, int lineno,
                  struct xobs *h, int size, int alignment,
@@ -734,21 +770,23 @@ int d_xobs_begin(const char *file, int lineno,
                  void *(*dallocfun) (void *, size_t));
 
 void *d_xobs_alloc(const char *file, int lineno, struct xobs *h, int size);
-void d_xobs_free(const char *file, int lineno, struct xobs *h, void *ptr);
+void d_xobs_free(const char *file, int lineno, struct xobs *h, const void *ptr);
 
 int d_xobs_blank(const char *file, int lineno, struct xobs *h, int size);
 void *d_xobs_finish(const char *file, int lineno, struct xobs *h);
 void *d_xobs_object_base(const char *file, int lineno, struct xobs *stack);
 int d_xobs_object_size(const char *file, int lineno, struct xobs *h);
 int d_xobs_1grow(const char *, int, struct xobs *h, char c);
-int d_xobs_grow(const char *, int, struct xobs *h, void *ptr, size_t size);
-int d_xobs_grow0(const char *, int, struct xobs *h, void *ptr, size_t size);
-int d_xobs_ptr_grow(const char *, int, struct xobs *h, void *ptr);
+int d_xobs_grow(const char *, int, struct xobs *h, const void *ptr, size_t size);
+int d_xobs_grow0(const char *, int, struct xobs *h, const void *ptr, size_t size);
+int d_xobs_ptr_grow(const char *, int, struct xobs *h, const void *ptr);
 int d_xobs_int_grow(const char *, int, struct xobs *h, int value);
-int d_xobs_ptr_grow_fast(const char *, int, struct xobs *h, void *ptr);
+int d_xobs_ptr_grow_fast(const char *, int, struct xobs *h, const void *ptr);
 int d_xobs_int_grow_fast(const char *, int, struct xobs *h, int value);
 int d_xobs_1grow_fast(const char *, int, struct xobs *h, char c);
-
+void *d_xobs_base(const char *, int, struct xobs *h);
+int d_xobs_sprintf(const char *, int,
+                   struct xobs *h, const char *format, ...);
 #endif  /* DEBUG */
 
 END_C_DECLS

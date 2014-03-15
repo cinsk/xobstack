@@ -722,7 +722,6 @@ __extension__                                                           \
 #define xobs_grow_literal(o, src)       xobs_grow((o), (src), sizeof(src) - 1)
 #define xobs_grow_literal0(o, src)      xobs_grow((o), (src), sizeof(src))
 
-
 #ifdef DEBUG
 #undef xobs_alloc
 #define xobs_alloc(h, s)        d_xobs_alloc(__FILE__, __LINE__, (h), (s))

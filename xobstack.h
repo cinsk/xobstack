@@ -405,7 +405,7 @@ extern int xobs_exit_failure;
  * On success, it returns the length of the string it added.
  * Otherwise, It returns -1 (e.g. allocation failure).
  */
-#define xobs_sprintf(o, fmt, ...)       xobs_sprintf_((o), (fmt), __VA_ARGS__)
+#define xobs_sprintf(o, fmt, ...)  xobs_sprintf_((o), (fmt), ## __VA_ARGS__)
 
 
 #if defined __GNUC__ && defined __STDC__ && __STDC__

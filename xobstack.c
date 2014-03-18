@@ -41,7 +41,9 @@
  * The mother obstack code is copied from glibc-2.14.1, modified for
  * Darwin compilation -- cinsk
  */
+#include <stdarg.h>
 #include <stdint.h>
+
 #include "xobstack.h"
 
 #ifdef DEBUG
@@ -101,33 +103,11 @@ static void *d_xobs_alloc_(LOC_PARAMSPEC, const char *fname,
 
 #ifdef TEST_XOBS
 #include <stdlib.h>
-#include <stdarg.h>
 
 #define xobs_chunk_alloc        malloc
 #define xobs_chunk_free         free
 
 // #define xobs_printf_grow(obs, ...) __VA_ARGS__
-int
-xobs_sprintf_(struct xobs *obs, const char *format, ...)
-{
-  int len;
-  va_list ap;
-  char *p;
-
-  va_start(ap, format);
-  len = vsnprintf(NULL, 0, format, ap);
-  va_end(ap);
-
-  xobs_blank(obs, len + 1);
-  p = xobs_base(obs) + xobs_object_size(obs) - (len + 1);
-
-  va_start(ap, format);
-  vsnprintf(p, len + 1, format, ap);
-  va_end(ap);
-
-  obs->next_free--;
-  return len;
-}
 
 
 int
@@ -1012,6 +992,29 @@ d_xobs_sprintf(LOC_PARAMSPEC, struct xobs *obs, const char *format, ...)
 
 
 #endif  /* DEBUG */
+
+int
+xobs_sprintf_(struct xobs *obs, const char *format, ...)
+{
+  int len;
+  va_list ap;
+  char *p;
+
+  va_start(ap, format);
+  len = vsnprintf(NULL, 0, format, ap);
+  va_end(ap);
+
+  xobs_blank(obs, len + 1);
+  p = xobs_base(obs) + xobs_object_size(obs) - (len + 1);
+
+  va_start(ap, format);
+  vsnprintf(p, len + 1, format, ap);
+  va_end(ap);
+
+  obs->next_free--;
+  return len;
+}
+
 
 void
 xobs_dump(struct xobs *h, FILE *fp)

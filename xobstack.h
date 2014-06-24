@@ -3,24 +3,25 @@
 #define XOBSTACK_H__
 
 /*
- * xobstack.h - subrotunes used implicitly by object stack macros
- * Copyright (C) 2012  Seong-Kook Shin <cinsky@gmail.com>
+ * DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+ * Version 2, December 2004
  *
- * This library is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of the
- * License, or (at your option) any later version.
+ * Copyright (C) 2014 nobody
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Everyone is permitted to copy and distribute verbatim or modified
+ * copies of this license document, and changing it is allowed as long
+ * as the name is changed.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301 USA
+ *            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+ *   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
  *
+ *  0. You just DO WHAT THE FUCK YOU WANT TO.
+ *
+ * This program is free software. It comes without any warranty, to the
+ * extent permitted by applicable law. You can redistribute it and/or
+ * modify it under the terms of the Do What The Fuck You Want To Public
+ * License, Version 2, as published by Sam Hocevar. See
+ * http://www.wtfpl.net/ for more details.
  */
 
 /*
